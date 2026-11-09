@@ -1,0 +1,64 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Project pages live at https://<user>.github.io/<repo>/,
+      # while https://<user>.github.io/ needs the root path.
+      - name: Compute base path
+        id: base
+        run: |
+          REPO="${GITHUB_REPOSITORY#*/}"
+          if [ "${REPO%.github.io}" != "$REPO" ]; then
+            echo "value=/" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=/$REPO/" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build
+        run: npm run build
+        env:
+          VITE_BASE_PATH: ${{ steps.base.outputs.value }}
+          # Optional: set the VITE_API_BASE_URL repository variable to point
+          # the site at a different backend (defaults to the ngrok URL in
+          # src/api/axios.js).
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

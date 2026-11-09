@@ -1,0 +1,64 @@
+import api from "./axios";
+
+// ============================================================
+// GET ALL STUDENTS
+// ============================================================
+
+export const getAdminStudents = async () => {
+  const response = await api.get("/admin/students");
+
+  return response.data;
+};
+
+// ============================================================
+// GET STUDENT DETAIL
+// ============================================================
+
+export const getAdminStudentDetail = async (studentId) => {
+  const response = await api.get(
+    `/admin/students/${studentId}`
+  );
+
+  return response.data;
+};
+
+// ============================================================
+// UPDATE STUDENT
+// ============================================================
+
+export const updateAdminStudent = async (
+  studentId,
+  payload
+) => {
+  const response = await api.put(
+    `/admin/students/${studentId}`,
+    {
+      student_id: payload.studentId,
+      name: payload.name,
+      email: payload.email,
+      course: payload.course,
+      year_level: payload.yearLevel,
+      grade: null,
+      section: payload.section,
+    }
+  );
+
+  return response.data;
+};
+
+// ============================================================
+// DELETE STUDENT
+// IMPORTANT:
+// This uses the DATABASE ID, not student_id.
+// Example:
+// student.id = 10
+// DELETE /api/admin/students/10
+// ============================================================
+
+export const deleteAdminStudent = async (id) => {
+  const response = await api.delete(
+    `/admin/students/${id}`
+  );
+
+  return response.data;
+};
