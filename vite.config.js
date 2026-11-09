@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => {
   return {
     // GitHub Pages project sites are served from /<repo-name>/.
     // The deploy workflow sets VITE_BASE_PATH automatically; use "/" otherwise.
-    base: env.VITE_BASE_PATH || '/',
+    base: env.VITE_BASE_PATH || '/ekumusta/',
     plugins: [
       react(),
       babel({ presets: ['@babel/preset-env', '@babel/preset-react'] })
